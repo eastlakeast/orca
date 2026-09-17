@@ -664,6 +664,8 @@ describe('WebSocketTransport', () => {
     it('does not retry the preferred port once a fallback is persisted', async () => {
       // Why: a persisted fallback means devices may already be paired to it,
       // so startup must bind it immediately rather than contend for the pin.
+      // preferPinnedPort puts the occupied preferred port first, so the elapsed
+      // time actually observes whether the retry window was skipped.
       const holder = new WebSocketTransport({ host: '127.0.0.1', port: 0 })
       transports.push(holder)
       await holder.start()
@@ -673,7 +675,8 @@ describe('WebSocketTransport', () => {
       const transport = new WebSocketTransport({
         host: '127.0.0.1',
         port: preferredPort,
-        fallbackPort
+        fallbackPort,
+        preferPinnedPort: true
       })
       transports.push(transport)
       const startedAt = Date.now()

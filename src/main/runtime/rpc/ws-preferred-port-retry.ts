@@ -22,7 +22,9 @@ export async function listenWithPortRetry(
         throw error
       }
       console.warn(`[ws-transport] Port ${port} is busy; retrying while a previous instance exits`)
-      await new Promise((resolve) => setTimeout(resolve, PREFERRED_PORT_RETRY_INTERVAL_MS))
+      // Why: a full interval here would overshoot the caller's window by up to one tick.
+      const delayMs = Math.min(PREFERRED_PORT_RETRY_INTERVAL_MS, deadline - Date.now())
+      await new Promise((resolve) => setTimeout(resolve, delayMs))
     }
   }
 }
